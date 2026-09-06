@@ -46,22 +46,46 @@ export default function ContactPage() {
 
       <div className="container contact-wrap" style={{ paddingBottom: "5rem" }}>
         <div className="contact-grid">
-          {/* Left — Calendly + direct */}
+          {/* Left — Calendly + direct links */}
           <div className="contact-block">
             <h2>Book a Call</h2>
-            {/* Drop your Calendly inline embed below */}
             <div className="calendly-ph">
-              Calendly scheduling embed goes here.<br />
-              <span style={{ opacity: 0.6 }}>Founders will add before launch.</span>
+              <div className="calendly-ph-title">30-Minute Strategy Call</div>
+              <div className="calendly-ph-sub" style={{ marginTop: "0.375rem", marginBottom: "1.5rem" }}>
+                Free · No commitment · We&apos;ll scope your project together
+              </div>
+              {/* Calendly embed will go here */}
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1rem",
+                border: "1px solid var(--bb-border-blue)",
+                borderRadius: "var(--r-xs)",
+                fontSize: "var(--text-xs)",
+                fontWeight: 600,
+                letterSpacing: "0.08em",
+                color: "var(--bb-blue-light)",
+                textTransform: "uppercase",
+                position: "relative",
+              }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--bb-blue)", boxShadow: "0 0 8px var(--bb-blue)", flexShrink: 0, display: "inline-block" }} />
+                Calendly Embed — Coming Soon
+              </div>
             </div>
+
             <div className="contact-alt-links">
-              <a href={`mailto:${SITE_CONFIG.email}`} className="btn btn-glass" style={{ justifyContent: "flex-start" }}>
+              <a
+                href={`mailto:${SITE_CONFIG.email}`}
+                className="btn btn-glass"
+                style={{ justifyContent: "flex-start" }}
+              >
                 {SITE_CONFIG.email}
               </a>
             </div>
           </div>
 
-          {/* Right — form */}
+          {/* Right — inquiry form */}
           <div className="contact-block">
             <h2>Send a Message</h2>
 
@@ -69,45 +93,96 @@ export default function ContactPage() {
               <div className="msg-success">
                 <h3>Message received.</h3>
                 <p>We&apos;ll be in touch within 24 hours.</p>
-                <button onClick={() => setStatus("idle")} className="btn btn-glass btn-sm" style={{ marginTop: "1rem" }}>
+                <button
+                  onClick={() => setStatus("idle")}
+                  className="btn btn-glass btn-sm"
+                  style={{ marginTop: "1rem" }}
+                >
                   Send another
                 </button>
               </div>
             ) : (
               <form onSubmit={onSubmit}>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="name">Name *</label>
-                  <input id="name" name="name" type="text" required className="form-input"
-                    value={form.name} onChange={onChange} placeholder="Your name" />
+                  <label className="form-label" htmlFor="contact-name">Name *</label>
+                  <input
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    required
+                    className="form-input"
+                    value={form.name}
+                    onChange={onChange}
+                    placeholder="Your name"
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="email">Email *</label>
-                  <input id="email" name="email" type="email" required className="form-input"
-                    value={form.email} onChange={onChange} placeholder="you@example.com" />
+                  <label className="form-label" htmlFor="contact-email">Email *</label>
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required
+                    className="form-input"
+                    value={form.email}
+                    onChange={onChange}
+                    placeholder="you@example.com"
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="phone">Phone (optional)</label>
-                  <input id="phone" name="phone" type="tel" className="form-input"
-                    value={form.phone} onChange={onChange} placeholder="+91 98765 43210" />
+                  <label className="form-label" htmlFor="contact-phone">Phone (optional)</label>
+                  <input
+                    id="contact-phone"
+                    name="phone"
+                    type="tel"
+                    className="form-input"
+                    value={form.phone}
+                    onChange={onChange}
+                    placeholder="+91 98765 43210"
+                  />
                 </div>
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="interested_service">Service</label>
-                  <select id="interested_service" name="interested_service" className="form-input"
-                    value={form.interested_service} onChange={onChange}>
+                  <label className="form-label" htmlFor="contact-service">Service</label>
+                  <select
+                    id="contact-service"
+                    name="interested_service"
+                    className="form-input"
+                    value={form.interested_service}
+                    onChange={onChange}
+                  >
                     <option value="">Select a service…</option>
                     {SERVICES.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
                 </div>
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="message">Project Brief *</label>
-                  <textarea id="message" name="message" required className="form-input"
-                    value={form.message} onChange={onChange}
-                    placeholder="Describe what you need built…" rows={5} minLength={10} />
+                  <label className="form-label" htmlFor="contact-message">Project Brief *</label>
+                  <textarea
+                    id="contact-message"
+                    name="message"
+                    required
+                    className="form-input"
+                    value={form.message}
+                    onChange={onChange}
+                    placeholder="Describe what you need built…"
+                    rows={5}
+                    minLength={10}
+                  />
                 </div>
+
                 {status === "error" && <div className="msg-error">{errMsg}</div>}
-                <button type="submit" className="btn btn-primary form-submit" disabled={status === "submitting"}>
+
+                <button
+                  type="submit"
+                  id="contact-submit"
+                  className="btn btn-primary form-submit"
+                  disabled={status === "submitting"}
+                >
                   {status === "submitting" ? "Sending…" : "Send Message"}
                 </button>
               </form>

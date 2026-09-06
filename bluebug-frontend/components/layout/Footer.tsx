@@ -11,7 +11,7 @@ export function Footer() {
           <div>
             <Link href="/" className="logo" aria-label="BlueBug Home">
               <div className="navbar-logo-mark">
-                <BlueBugLogo size={46} glow={true} />
+                <BlueBugLogo size={44} glow={true} />
               </div>
               <div className="logo-text-group">
                 <span className="logo-wordmark">
@@ -24,7 +24,8 @@ export function Footer() {
               </div>
             </Link>
             <p className="footer-brand-desc">
-              A tech consultancy building custom sites, apps, and AI/ML systems that actually ship.
+              A tech consultancy building custom sites, apps, and AI/ML systems
+              that actually ship. Real work, zero fluff.
             </p>
           </div>
 
@@ -51,6 +52,7 @@ export function Footer() {
 
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</span>
+          <span className="footer-tagline">Built with precision.</span>
           <Link href="/privacy">Privacy</Link>
         </div>
       </div>

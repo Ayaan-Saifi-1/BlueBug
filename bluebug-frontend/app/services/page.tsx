@@ -1,6 +1,7 @@
 import { fetchServices } from "@/lib/api";
 import { SERVICES_FALLBACK } from "@/lib/config";
 import Link from "next/link";
+import { RevealSection } from "@/components/ui/RevealSection";
 
 export const metadata = {
   title: "Services",
@@ -22,31 +23,43 @@ export default async function ServicesPage() {
       </div>
 
       <div className="container" style={{ paddingBottom: "5rem" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {display.map((s) => (
-            <div key={s.slug} id={s.slug} className="service-detail-block">
-              <h2>{s.title}</h2>
-              <div className="service-detail-short">{s.short_description}</div>
-              {(s as any).full_description && (
-                <div className="service-detail-full"
-                  dangerouslySetInnerHTML={{ __html: (s as any).full_description }} />
-              )}
-              {(s as any).proof_project && (
-                <Link href="/work" className="btn btn-glass btn-sm" style={{ marginTop: "1rem" }}>
-                  See it in production
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div style={{ marginTop: "3rem" }}>
-          <div className="cta-section">
-            <h2>Not sure which service fits?</h2>
-            <p>Book a free 30-minute call and we&apos;ll figure it out together.</p>
-            <Link href="/contact" className="btn btn-primary btn-lg">Book a Call</Link>
+        <RevealSection>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {display.map((s, i) => (
+              <div
+                key={s.slug}
+                id={s.slug}
+                className={`service-detail-block reveal reveal-delay-${Math.min(i + 1, 5)}`}
+              >
+                <h2>{s.title}</h2>
+                <div className="service-detail-short">{s.short_description}</div>
+                {(s as any).full_description && (
+                  <div
+                    className="service-detail-full"
+                    dangerouslySetInnerHTML={{ __html: (s as any).full_description }}
+                  />
+                )}
+                {(s as any).proof_project && (
+                  <Link
+                    href="/work"
+                    className="btn btn-glass btn-sm"
+                    style={{ marginTop: "1.25rem", alignSelf: "flex-start" }}
+                  >
+                    See it in production
+                  </Link>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+
+          <div className="reveal" style={{ marginTop: "3.5rem" }}>
+            <div className="cta-section">
+              <h2>Not sure which service fits?</h2>
+              <p>Book a free 30-minute call and we&apos;ll figure it out together.</p>
+              <Link href="/contact" className="btn btn-primary btn-lg">Book a Call</Link>
+            </div>
+          </div>
+        </RevealSection>
       </div>
     </>
   );

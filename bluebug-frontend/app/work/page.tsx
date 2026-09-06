@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchProjects } from "@/lib/api";
 import { CATEGORY_LABELS } from "@/lib/config";
-import { ArrowUpRight } from "@/lib/icons";
+import { RevealSection } from "@/components/ui/RevealSection";
 import type { ProjectList } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -12,18 +12,21 @@ export const metadata: Metadata = {
 
 function EmptyIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36, opacity: 0.12, color: "var(--bb-blue)" }}>
-      <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" style={{ width: 36, height: 36, opacity: 0.12, color: "var(--bb-blue)" }}>
+      <circle cx="24" cy="24" r="18" />
+      <circle cx="24" cy="24" r="10" />
+      <line x1="24" y1="6" x2="24" y2="42" />
+      <line x1="6" y1="24" x2="42" y2="24" />
     </svg>
   );
 }
 
-function ProjectCard({ p }: { p: ProjectList }) {
+function ProjectCard({ p, delay }: { p: ProjectList; delay: number }) {
   return (
-    <Link href={`/work/${p.slug}`} className="project-card">
+    <Link href={`/work/${p.slug}`} className={`project-card reveal reveal-delay-${Math.min(delay, 5)}`}>
       <div className="card-media">
         {p.cover_image
-          ? <img src={p.cover_image} alt={p.title} className="card-img" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ? <img src={p.cover_image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           : <div className="card-media-empty"><EmptyIcon /></div>
         }
       </div>
@@ -82,15 +85,25 @@ export default async function WorkPage({
           ))}
         </div>
 
-        {projects.length > 0 ? (
-          <div className="projects-grid">
-            {projects.map((p) => <ProjectCard key={p.id} p={p} />)}
-          </div>
-        ) : (
-          <div style={{ textAlign: "center", padding: "4rem 0", color: "var(--bb-text-300)", fontSize: "var(--text-sm)" }}>
-            No projects match this filter.
-          </div>
-        )}
+        <RevealSection>
+          {projects.length > 0 ? (
+            <div className="projects-grid">
+              {projects.map((p, i) => (
+                <ProjectCard key={p.id} p={p} delay={(i % 3) + 1} />
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              textAlign: "center",
+              padding: "4rem 0",
+              color: "var(--bb-text-300)",
+              fontSize: "var(--text-sm)",
+              borderTop: "1px solid var(--bb-border)",
+            }}>
+              No projects match this filter.
+            </div>
+          )}
+        </RevealSection>
       </div>
     </>
   );
