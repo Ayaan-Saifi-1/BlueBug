@@ -51,9 +51,9 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</span>
+          <span className="footer-copyright">© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</span>
           <span className="footer-tagline">Built with precision.</span>
-          <Link href="/privacy">Privacy</Link>
+          <Link href="/privacy" className="footer-privacy-link">Privacy</Link>
         </div>
       </div>
     </footer>

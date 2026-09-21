@@ -11,7 +11,6 @@ import { ParallaxReveal } from "@/components/ui/ParallaxReveal";
 import { FluidShaderCanvas } from "@/components/ui/FluidShaderCanvas";
 import type { ProjectList } from "@/lib/types";
 import { HeroCanvas } from "@/components/ui/HeroCanvas";
-import { TextScramble } from "@/components/ui/TextScramble";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { StatsSection } from "@/components/ui/StatsSection";
 import { ScrollTimeline } from "@/components/ui/ScrollTimeline";
@@ -92,7 +91,7 @@ export default async function Home() {
             Tech Consultancy
           </div>
           <h1 className="hero-title gradient-text hero-enter" style={{ animationDelay: "80ms" }}>
-            <TextScramble text={SITE_CONFIG.tagline} delay={600} duration={2000} />
+            {SITE_CONFIG.tagline}
           </h1>
           <p className="hero-sub hero-enter" style={{ animationDelay: "180ms" }}>
             Custom websites, apps, PWAs, and AI/ML systems — designed,
