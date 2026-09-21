@@ -12,16 +12,29 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # -------------------------------------------------------------------
 DEBUG = False
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['api.bluebug.xyz'])
+ALLOWED_HOSTS = env.list(
+    'ALLOWED_HOSTS',
+    default=['.onrender.com', 'api.bluebug.xyz', 'localhost', '127.0.0.1']
+)
 
 # -------------------------------------------------------------------
 # CORS — sirf frontend domains ko allow karo, kabhi * nahi
 # -------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = env.list(
     'CORS_ALLOWED_ORIGINS',
-    default=['https://bluebug.xyz', 'https://www.bluebug.xyz']
+    default=['https://bluebug.xyz', 'https://www.bluebug.xyz', 'http://localhost:3000']
 )
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+]
 CORS_ALLOW_CREDENTIALS = False
+
+# CSRF Trusted Origins for Django Admin on Render / Custom Domain
+CSRF_TRUSTED_ORIGINS = env.list(
+    'CSRF_TRUSTED_ORIGINS',
+    default=['https://*.onrender.com', 'https://*.vercel.app', 'https://bluebug.xyz', 'https://api.bluebug.xyz']
+)
 
 # -------------------------------------------------------------------
 # Database — PostgreSQL via DATABASE_URL env var
@@ -34,6 +47,8 @@ DATABASES['default']['CONN_MAX_AGE'] = 60  # connection pooling
 # -------------------------------------------------------------------
 # Security headers — HTTPS pe mandatory
 # -------------------------------------------------------------------
+# Render / reverse-proxy header for HTTPS detection
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000          # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True

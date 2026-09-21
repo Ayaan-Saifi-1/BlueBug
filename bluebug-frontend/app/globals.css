@@ -6,14 +6,16 @@
 
 :root {
   /* Brand */
-  --bb-blue: #1481F8;
-  --bb-azure: #0ea5e9;
-  --bb-blue-light: #3D9AFA;
-  --bb-blue-dark: #0D6FDB;
-  --bb-blue-alpha-20: rgba(20, 129, 248, 0.20);
-  --bb-blue-alpha-12: rgba(20, 129, 248, 0.12);
-  --bb-blue-alpha-10: rgba(20, 129, 248, 0.10);
-  --bb-blue-alpha-06: rgba(20, 129, 248, 0.06);
+  /* Dynamic brand hue — overridden by JS */
+  --bb-hue: 212;
+  --bb-blue: hsl(var(--bb-hue), 94%, 53%);
+  --bb-azure: hsl(calc(var(--bb-hue) - 15), 85%, 49%);
+  --bb-blue-light: hsl(var(--bb-hue), 94%, 62%);
+  --bb-blue-dark: hsl(var(--bb-hue), 90%, 46%);
+  --bb-blue-alpha-20: hsla(var(--bb-hue), 94%, 53%, 0.20);
+  --bb-blue-alpha-12: hsla(var(--bb-hue), 94%, 53%, 0.12);
+  --bb-blue-alpha-10: hsla(var(--bb-hue), 94%, 53%, 0.10);
+  --bb-blue-alpha-06: hsla(var(--bb-hue), 94%, 53%, 0.06);
 
   /* Backgrounds */
   --bb-bg: #06090F;
@@ -75,6 +77,39 @@
   --text-3xl: clamp(1.75rem, 3vw, 2.25rem);
   --text-4xl: clamp(2.25rem, 4.5vw, 3.25rem);
   --text-hero: clamp(2.85rem, 6.5vw, 5rem);
+}
+
+/* ================================================================
+   Light Mode Overrides
+   ================================================================ */
+:root[data-theme="light"] {
+  /* Backgrounds */
+  --bb-bg: #F8FAFC;
+  --bb-surface: #FFFFFF;
+  --bb-surface-2: #F1F5F9;
+  --bb-surface-3: #E2E8F0;
+
+  /* Glass */
+  --bb-glass-bg: rgba(255, 255, 255, 0.80);
+  --bb-glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Borders */
+  --bb-border: rgba(0, 0, 0, 0.08);
+  --bb-border-strong: rgba(0, 0, 0, 0.14);
+
+  /* Text */
+  --bb-text-100: #0F172A;
+  --bb-text-200: #475569;
+  --bb-text-300: #94A3B8;
+  --bb-text-400: #CBD5E1;
+
+  /* The brand blue stays the same */
+  /* Status colors stay the same */
+}
+
+/* Noise overlay should be invisible in light mode */
+:root[data-theme="light"] body::before {
+  opacity: 0;
 }
 
 /* ================================================================
@@ -2617,5 +2652,98 @@ body.custom-cursor-active * {
 @media (max-width: 640px) {
   .form-row-2col { grid-template-columns: 1fr; }
 }
+
+/* ================================================================
+   Theme Toggle Button
+   ================================================================ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--bb-glass-bg);
+  border: 1px solid var(--bb-border);
+  color: var(--bb-text-200);
+  cursor: pointer;
+  transition: all var(--t-base);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.theme-toggle:hover {
+  background: var(--bb-blue-alpha-12);
+  color: var(--bb-blue);
+  border-color: var(--bb-border-blue);
+}
+
+/* ================================================================
+   Accent Color Picker
+   ================================================================ */
+.accent-picker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.accent-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: hsl(var(--dot-hue), 80%, 55%);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.accent-dot:hover {
+  transform: scale(1.25);
+}
+.accent-dot.active {
+  border-color: var(--bb-text-100);
+  box-shadow: 0 0 8px hsla(var(--dot-hue), 80%, 55%, 0.5);
+}
+
+/* ================================================================
+   Smooth Scroll Offset for Fixed Navbar
+   ================================================================ */
+[id].service-block-v2 {
+  scroll-margin-top: 100px;
+}
+
+/* ================================================================
+   Audio Toggle
+   ================================================================ */
+.audio-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bb-glass-bg);
+  border: 1px solid var(--bb-border);
+  color: var(--bb-text-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--t-base);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.audio-toggle:hover {
+  background: var(--bb-blue-alpha-12);
+  color: var(--bb-blue);
+  border-color: var(--bb-border-blue);
+}
+@media (max-width: 768px) {
+  .audio-toggle {
+    bottom: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
 
 

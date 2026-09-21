@@ -6,6 +6,7 @@ import { CATEGORY_LABELS } from "@/lib/config";
 import { ChevronLeft, ArrowUpRight } from "@/lib/icons";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { CaseStudyHero } from "@/components/ui/CaseStudyHero";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -32,23 +33,8 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="case-study-v2">
-      {/* Full-width cover */}
-      <div className="case-cover">
-        {project.cover_image
-          ? <img src={project.cover_image} alt={project.title} className="case-cover-img" />
-          : (
-            <div className="case-cover-placeholder">
-              <svg viewBox="0 0 80 80" fill="none" stroke="#1481F8" strokeWidth="0.5" opacity="0.25" width="80" height="80" aria-hidden="true">
-                <circle cx="40" cy="40" r="36" />
-                <circle cx="40" cy="40" r="20" />
-                <line x1="40" y1="4" x2="40" y2="76" />
-                <line x1="4" y1="40" x2="76" y2="40" />
-              </svg>
-            </div>
-          )
-        }
-        <div className="case-cover-gradient" />
-      </div>
+      {/* Full-width cover with shared layout morph */}
+      <CaseStudyHero slug={slug} coverImage={project.cover_image} title={project.title} />
 
       {/* Back link */}
       <div className="container" style={{ paddingTop: "2rem" }}>

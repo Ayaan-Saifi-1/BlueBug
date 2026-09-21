@@ -217,10 +217,21 @@ export function HeroCanvas() {
         camera.lookAt(0, 0, 0);
 
         // Rotate background core
-        coreGroup.rotation.x += 0.002;
-        coreGroup.rotation.y += 0.0035;
-        octMesh.rotation.x -= 0.004;
-        octMesh.rotation.y += 0.003;
+        // Audio reactive scale & rotation boost
+        let audioBoost = 1.0;
+        const audioAnalyser = typeof window !== "undefined" ? (window as any).__audioAnalyser : null;
+        if (audioAnalyser) {
+          const freqData = new Uint8Array(audioAnalyser.frequencyBinCount);
+          audioAnalyser.getByteFrequencyData(freqData);
+          const avg = freqData.reduce((acc: number, val: number) => acc + val, 0) / (freqData.length * 255);
+          audioBoost = 1.0 + avg * 1.2;
+        }
+
+        coreGroup.scale.set(audioBoost, audioBoost, audioBoost);
+        coreGroup.rotation.x += 0.002 * audioBoost;
+        coreGroup.rotation.y += 0.0035 * audioBoost;
+        octMesh.rotation.x -= 0.004 * audioBoost;
+        octMesh.rotation.y += 0.003 * audioBoost;
 
         // Process shockwaves
         for (let s = shockwaves.length - 1; s >= 0; s--) {

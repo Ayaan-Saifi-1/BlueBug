@@ -1,0 +1,67 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+  .bb-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .bb-stat-card { background: var(--surface-bg, #1e293b); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+  .bb-stat-num { font-size: 2rem; font-weight: 700; color: #1481F8; }
+  .bb-stat-label { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
+  .bb-recent-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  .bb-recent-table th, .bb-recent-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .bb-recent-table th { font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; }
+</style>
+
+<div class="bb-dashboard">
+  <div class="bb-stat-card">
+    <div class="bb-stat-num">{{ total_leads|default:"0" }}</div>
+    <div class="bb-stat-label">Total Leads</div>
+  </div>
+  <div class="bb-stat-card">
+    <div class="bb-stat-num">{{ leads_this_week|default:"0" }}</div>
+    <div class="bb-stat-label">This Week</div>
+  </div>
+  <div class="bb-stat-card">
+    <div class="bb-stat-num">{{ leads_this_month|default:"0" }}</div>
+    <div class="bb-stat-label">This Month</div>
+  </div>
+  <div class="bb-stat-card">
+    <div class="bb-stat-num" style="color: #F59E0B;">{{ new_leads|default:"0" }}</div>
+    <div class="bb-stat-label">Uncontacted</div>
+  </div>
+</div>
+
+{% if service_breakdown %}
+<h3 style="margin: 1.5rem 0 0.75rem; font-size: 1rem; color: #e2e8f0;">Popular Services</h3>
+<div class="bb-dashboard">
+  {% for item in service_breakdown %}
+  <div class="bb-stat-card">
+    <div class="bb-stat-num" style="font-size: 1.5rem;">{{ item.count }}</div>
+    <div class="bb-stat-label">{{ item.interested_service }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if recent_leads %}
+<h3 style="margin: 1.5rem 0 0.75rem; font-size: 1rem; color: #e2e8f0;">Recent Leads</h3>
+<table class="bb-recent-table">
+  <thead>
+    <tr><th>Name</th><th>Email</th><th>Service</th><th>Status</th><th>Date</th></tr>
+  </thead>
+  <tbody>
+    {% for lead in recent_leads %}
+    <tr>
+      <td>{{ lead.name }}</td>
+      <td>{{ lead.email }}</td>
+      <td>{{ lead.interested_service|default:"-" }}</td>
+      <td>{{ lead.get_status_display }}</td>
+      <td>{{ lead.created_at|date:"M d, Y" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{{ block.super }}
+{% endblock %}

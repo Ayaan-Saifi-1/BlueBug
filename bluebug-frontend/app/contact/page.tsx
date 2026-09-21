@@ -4,6 +4,8 @@ import { submitLead } from "@/lib/api";
 import { SITE_CONFIG } from "@/lib/config";
 import { SubpageCanvas } from "@/components/ui/SubpageCanvas";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { LottieIcon } from "@/components/ui/LottieIcon";
+import { CHECK_ANIMATION } from "@/lib/lottie-animations";
 
 const SERVICES = [
   { value: "web",        label: "Custom Website" },
@@ -112,6 +114,9 @@ export default function ContactPage() {
 
             {status === "success" ? (
               <div className="msg-success">
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                  <LottieIcon animationData={CHECK_ANIMATION} size={64} autoplay loop={false} playOnHover={false} />
+                </div>
                 <h3>Message received.</h3>
                 <p>We will be in touch within 24 hours.</p>
                 <button onClick={() => setStatus("idle")} className="btn btn-glass btn-sm" style={{ marginTop: "1rem" }}>

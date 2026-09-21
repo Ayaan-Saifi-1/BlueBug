@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { fetchProjects, fetchServices, fetchStats } from "@/lib/api";
 import {
   SITE_CONFIG, TECH_PILLS, SERVICES_FALLBACK,
@@ -6,6 +7,8 @@ import {
 } from "@/lib/config";
 import { ArrowUpRight, ArrowRight } from "@/lib/icons";
 import { RevealSection } from "@/components/ui/RevealSection";
+import { ParallaxReveal } from "@/components/ui/ParallaxReveal";
+import { FluidShaderCanvas } from "@/components/ui/FluidShaderCanvas";
 import type { ProjectList } from "@/lib/types";
 import { HeroCanvas } from "@/components/ui/HeroCanvas";
 import { TextScramble } from "@/components/ui/TextScramble";
@@ -39,7 +42,7 @@ function BentoCard({ p, className, delay }: { p: ProjectList; className: string;
       <Link href={`/work/${p.slug}`} className="bento-card-inner-link">
         <div className="bento-media">
           {p.cover_image
-            ? <img src={p.cover_image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ? <Image src={p.cover_image} alt={p.title} fill style={{ objectFit: "cover" }} sizes="(max-width: 768px) 100vw, 50vw" />
             : <div className="bento-media-empty"><GeomIcon /></div>
           }
         </div>
@@ -120,7 +123,7 @@ export default async function Home() {
 
       {/* FEATURED WORK */}
       <section className="section">
-        <RevealSection>
+        <ParallaxReveal>
           <div className="container">
             <div className="section-hd reveal">
               <span className="label">Portfolio</span>
@@ -158,7 +161,7 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-        </RevealSection>
+        </ParallaxReveal>
       </section>
 
       {/* SERVICES */}
@@ -213,9 +216,10 @@ export default async function Home() {
       </section>
 
       {/* CTA */}
-      <section className="section-sm">
+      <section className="section-sm" style={{ position: "relative", overflow: "hidden" }}>
+        <FluidShaderCanvas />
         <RevealSection>
-          <div className="container">
+          <div className="container" style={{ position: "relative", zIndex: 1 }}>
             <div className="cta-section reveal">
               <h2>Have a project in mind?</h2>
               <p>We work with startups, institutions, and founders who need real software built.</p>

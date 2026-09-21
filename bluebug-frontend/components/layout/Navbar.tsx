@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { NAV_LINKS, SITE_CONFIG } from "@/lib/config";
 import { BlueBugLogo } from "@/components/ui/BlueBugLogo";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -69,6 +70,7 @@ export function Navbar() {
 
             {/* Desktop CTA + Mobile hamburger */}
             <div className="nav-actions">
+              <ThemeToggle />
               <Link href="/contact" className="btn btn-primary btn-sm">
                 Book a Call
               </Link>

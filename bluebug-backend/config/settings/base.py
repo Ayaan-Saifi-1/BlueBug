@@ -49,6 +49,15 @@ INSTALLED_APPS = [
 ]
 
 # -------------------------------------------------------------------
+# Unfold Admin Customization
+# -------------------------------------------------------------------
+UNFOLD = {
+    "SITE_TITLE": "BlueBug Admin",
+    "SITE_HEADER": "BlueBug",
+    "DASHBOARD_CALLBACK": "apps.core.dashboard_callback.dashboard_callback",
+}
+
+# -------------------------------------------------------------------
 # Middleware — CorsMiddleware sabse pehle hona chahiye
 # -------------------------------------------------------------------
 MIDDLEWARE = [
@@ -67,7 +76,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

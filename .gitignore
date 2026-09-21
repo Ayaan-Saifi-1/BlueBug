@@ -43,3 +43,19 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Security, Keys & Credentials (NEVER commit to internet)
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+*secret*.json
+serviceAccount*.json
+
+# Media & Uploads (Never push client uploads to git)
+media/
+staticfiles/
+**/media/
+**/staticfiles/
+
