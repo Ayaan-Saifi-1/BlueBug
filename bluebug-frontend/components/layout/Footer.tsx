@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { NAV_LINKS, SITE_CONFIG } from "@/lib/config";
 import { BlueBugLogo } from "@/components/ui/BlueBugLogo";
-import { AccentPicker } from "@/components/ui/AccentPicker";
 
 export function Footer() {
   return (
@@ -53,7 +52,6 @@ export function Footer() {
 
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.</span>
-          <AccentPicker />
           <span className="footer-tagline">Built with precision.</span>
           <Link href="/privacy">Privacy</Link>
         </div>
