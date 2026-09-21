@@ -1,4 +1,4 @@
-import { ProjectList, ProjectDetail, ServiceOffering, TeamMember, Testimonial } from './types';
+import { ProjectList, ProjectDetail, ServiceOffering, TeamMember, Testimonial, SiteStatsResponse } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -67,3 +67,15 @@ export async function submitLead(data: any): Promise<{success: boolean; error?: 
     return { success: false, error: 'Network error. Please try again later.' };
   }
 }
+
+export async function fetchStats(): Promise<SiteStatsResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/stats/`, { next: { revalidate: 60 } });
+    if (!res.ok) throw new Error('Failed to fetch stats');
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    return null;
+  }
+}
+

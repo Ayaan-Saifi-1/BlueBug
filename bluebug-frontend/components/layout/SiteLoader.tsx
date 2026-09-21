@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BlueBugLogo } from "@/components/ui/BlueBugLogo";
+import { LoaderCanvas } from "@/components/ui/LoaderCanvas";
 
 export function SiteLoader() {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   // Stages:
-  // "boot" (0 - 500ms): Reticle viewfinder locks in, emblem enters with spring
-  // "scan" (500ms - 1750ms): Laser sheen sweep, reactor core charge, telemetry ticker 0% -> 90%
-  // "energize" (1750ms - 2350ms): 100% SYSTEM ONLINE, shockwave pulse & flash
-  // "dock" (2350ms - 3150ms): Emblem glides and scales into navbar
-  // "done" (3150ms+): Complete
+  // "boot" (0 - 700ms): Reticle viewfinder locks in, emblem & hexagon initialize
+  // "scan" (700ms - 3200ms): Reactor core charge, particles converge, telemetry ticker 0% -> 99%
+  // "energize" (3200ms - 4100ms): 100% SYSTEM ONLINE, shockwave pulse & core flash
+  // "dock" (4100ms - 5000ms): Emblem glides and scales smoothly into navbar logo
+  // "done" (5000ms+): Complete & unmounted
   const [stage, setStage] = useState<"boot" | "scan" | "energize" | "dock" | "done">("boot");
   const [progress, setProgress] = useState(0);
 
@@ -21,11 +24,19 @@ export function SiteLoader() {
     scale: 1,
   });
 
-  // Animated Telemetry Counter (0% -> 100%)
+  // Responsive mobile screen detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Smooth cinematic telemetry counter (0% -> 100% over 3.4 seconds)
   useEffect(() => {
     let frameId: number;
     const startTime = performance.now();
-    const duration = 2100; // 2.1s to reach 100%
+    const duration = 3400; // 3.4s to reach 100% for an unhurried, luxury feel
 
     const updateCounter = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -47,13 +58,16 @@ export function SiteLoader() {
     setMounted(true);
     document.body.classList.add("site-intro-active");
 
-    const t1 = setTimeout(() => setStage("scan"), 500);
-    const t2 = setTimeout(() => setStage("energize"), 1800);
+    const t1 = setTimeout(() => setStage("scan"), 700);
+    const t2 = setTimeout(() => setStage("energize"), 3200);
 
     const t3 = setTimeout(() => {
       const targetEl =
         document.getElementById("navbar-brand-icon-target") ||
         document.getElementById("navbar-brand-logo");
+
+      const mob = window.innerWidth < 640;
+      const emblemBaseSize = mob ? 80 : 116;
 
       if (targetEl) {
         const rect = targetEl.getBoundingClientRect();
@@ -64,23 +78,23 @@ export function SiteLoader() {
 
         const deltaX = targetCenterX - centerX;
         const deltaY = targetCenterY - centerY;
-        const scale = (rect.width || 48) / 130;
+        const scale = (rect.width || 46) / emblemBaseSize;
 
         setTargetOffset({ x: deltaX, y: deltaY, scale });
       } else {
         setTargetOffset({
-          x: -(window.innerWidth / 2) + 54,
+          x: -(window.innerWidth / 2) + (mob ? 34 : 54),
           y: -(window.innerHeight / 2) + 34,
-          scale: 48 / 130,
+          scale: 46 / emblemBaseSize,
         });
       }
       setStage("dock");
-    }, 2400);
+    }, 4100);
 
     const t4 = setTimeout(() => {
       document.body.classList.remove("site-intro-active");
       setStage("done");
-    }, 3250);
+    }, 5000);
 
     const handleSkip = (e: KeyboardEvent | MouseEvent) => {
       if ("key" in e && e.key !== "Escape") return;
@@ -114,6 +128,12 @@ export function SiteLoader() {
     statusText = "SYSTEM ONLINE // DOCKING";
   }
 
+  const emblemSize = isMobile ? 80 : 116;
+  const hexSize = isMobile ? 152 : 216;
+  const hudSize = isMobile ? 200 : 276;
+  const outerRingSize = isMobile ? 172 : 240;
+  const nebulaSize = isMobile ? "360px" : "750px";
+
   return (
     <AnimatePresence>
       {stage !== "done" && (
@@ -132,10 +152,6 @@ export function SiteLoader() {
             inset: 0,
             zIndex: 99999,
             backgroundColor: "#030712",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
             cursor: "pointer",
             overflow: "hidden",
             pointerEvents: isDocking ? "none" : "auto",
@@ -150,12 +166,15 @@ export function SiteLoader() {
             transition={{ duration: stage === "energize" ? 0.6 : 3, repeat: Infinity, ease: "easeInOut" }}
             style={{
               position: "absolute",
-              width: "750px",
-              height: "750px",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: nebulaSize,
+              height: nebulaSize,
               borderRadius: "50%",
               background:
                 "radial-gradient(circle, rgba(20, 129, 248, 0.35) 0%, rgba(56, 189, 248, 0.12) 40%, transparent 70%)",
-              filter: "blur(75px)",
+              filter: isMobile ? "blur(45px)" : "blur(75px)",
               pointerEvents: "none",
             }}
           />
@@ -167,7 +186,7 @@ export function SiteLoader() {
               inset: 0,
               backgroundImage:
                 "linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px)",
-              backgroundSize: "40px 40px",
+              backgroundSize: isMobile ? "28px 28px" : "40px 40px",
               backgroundPosition: "center center",
               pointerEvents: "none",
               opacity: isDocking ? 0 : 0.8,
@@ -175,15 +194,22 @@ export function SiteLoader() {
             }}
           />
 
-          {/* Central Telemetry Viewfinder Frame (HUD) */}
+          {/* Three.js Holographic Bug Assembly & Quantum Warp Canvas */}
+          <LoaderCanvas progress={progress} stage={stage} />
+
+          {/* Central Telemetry Viewfinder Frame (HUD): pinned at exact dead-center */}
           <div
             style={{
-              position: "relative",
-              width: "280px",
-              height: "280px",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: `${hudSize}px`,
+              height: `${hudSize}px`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              zIndex: 10,
             }}
           >
             {/* Viewfinder Reticle Corner Brackets [  ] */}
@@ -206,8 +232,8 @@ export function SiteLoader() {
                   position: "absolute",
                   top: 0,
                   left: 0,
-                  width: "20px",
-                  height: "20px",
+                  width: isMobile ? "16px" : "20px",
+                  height: isMobile ? "16px" : "20px",
                   borderTop: "2px solid #38bdf8",
                   borderLeft: "2px solid #38bdf8",
                   filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.8))",
@@ -219,8 +245,8 @@ export function SiteLoader() {
                   position: "absolute",
                   top: 0,
                   right: 0,
-                  width: "20px",
-                  height: "20px",
+                  width: isMobile ? "16px" : "20px",
+                  height: isMobile ? "16px" : "20px",
                   borderTop: "2px solid #38bdf8",
                   borderRight: "2px solid #38bdf8",
                   filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.8))",
@@ -232,8 +258,8 @@ export function SiteLoader() {
                   position: "absolute",
                   bottom: 0,
                   left: 0,
-                  width: "20px",
-                  height: "20px",
+                  width: isMobile ? "16px" : "20px",
+                  height: isMobile ? "16px" : "20px",
                   borderBottom: "2px solid #38bdf8",
                   borderLeft: "2px solid #38bdf8",
                   filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.8))",
@@ -245,8 +271,8 @@ export function SiteLoader() {
                   position: "absolute",
                   bottom: 0,
                   right: 0,
-                  width: "20px",
-                  height: "20px",
+                  width: isMobile ? "16px" : "20px",
+                  height: isMobile ? "16px" : "20px",
                   borderBottom: "2px solid #38bdf8",
                   borderRight: "2px solid #38bdf8",
                   filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.8))",
@@ -259,44 +285,21 @@ export function SiteLoader() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{
                 scale: isDocking ? 0.3 : 1,
-                opacity: isDocking ? 0 : 0.45,
+                opacity: isDocking ? 0 : 0.4,
                 rotate: 360,
               }}
               transition={{
-                rotate: { duration: 16, repeat: Infinity, ease: "linear" },
+                rotate: { duration: 22, repeat: Infinity, ease: "linear" },
                 scale: { duration: 0.5 },
                 opacity: { duration: 0.4 },
               }}
               style={{
                 position: "absolute",
-                width: "230px",
-                height: "230px",
+                width: `${outerRingSize}px`,
+                height: `${outerRingSize}px`,
                 borderRadius: "50%",
-                border: "1px dashed rgba(56, 189, 248, 0.4)",
-                boxShadow: "0 0 15px rgba(20, 129, 248, 0.2)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Inner Concentric Caliper Ring (Counter-Clockwise) */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{
-                scale: isDocking ? 0.3 : 1,
-                opacity: isDocking ? 0 : 0.3,
-                rotate: -360,
-              }}
-              transition={{
-                rotate: { duration: 10, repeat: Infinity, ease: "linear" },
-                scale: { duration: 0.5 },
-                opacity: { duration: 0.4 },
-              }}
-              style={{
-                position: "absolute",
-                width: "180px",
-                height: "180px",
-                borderRadius: "50%",
-                border: "1px dotted rgba(14, 165, 233, 0.5)",
+                border: "1px dashed rgba(56, 189, 248, 0.35)",
+                boxShadow: "0 0 15px rgba(20, 129, 248, 0.15)",
                 pointerEvents: "none",
               }}
             />
@@ -304,22 +307,81 @@ export function SiteLoader() {
             {/* High-Energy Shockwave Pulse on 100% Lock-in */}
             {stage === "energize" && (
               <motion.div
-                initial={{ scale: 0.6, opacity: 0.9 }}
-                animate={{ scale: 2.6, opacity: 0 }}
+                initial={{ scale: 0.6, opacity: 0.95 }}
+                animate={{ scale: 2.8, opacity: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 style={{
                   position: "absolute",
-                  width: "160px",
-                  height: "160px",
+                  width: `${hexSize}px`,
+                  height: `${hexSize}px`,
                   borderRadius: "50%",
                   border: "2px solid #38bdf8",
                   boxShadow: "0 0 35px #1481f8, inset 0 0 25px #38bdf8",
                   pointerEvents: "none",
+                  zIndex: 2,
                 }}
               />
             )}
 
-            {/* THE EMBLEM: Features Holographic Laser Sheen & Docking Flight */}
+            {/* Cyber-Hexagon Containment Shield: Exactly concentric around the bug logo */}
+            <motion.svg
+              width={hexSize}
+              height={hexSize}
+              viewBox="0 0 200 200"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{
+                scale: isDocking ? 0.3 : stage === "energize" ? [1, 1.05, 1] : 1,
+                opacity: isDocking ? 0 : 1,
+              }}
+              transition={{
+                scale: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: 0.4 },
+              }}
+              style={{
+                position: "absolute",
+                pointerEvents: "none",
+                zIndex: 4,
+                overflow: "visible",
+                filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.5))",
+              }}
+            >
+              {/* Outer Glowing Hexagon */}
+              <polygon
+                points="100,4 183,52 183,148 100,196 17,148 17,52"
+                fill="rgba(20, 129, 248, 0.04)"
+                stroke="#38bdf8"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+
+              {/* Inner Dashed Tech Hexagon */}
+              <polygon
+                points="100,16 172,58 172,142 100,184 28,142 28,58"
+                fill="none"
+                stroke="#1481f8"
+                strokeWidth="1.2"
+                strokeDasharray="4 4"
+                strokeOpacity="0.75"
+              />
+
+              {/* 6 Glowing Corner Node Pips at Vertices */}
+              <circle cx="100" cy="4" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="183" cy="52" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="183" cy="148" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="100" cy="196" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="17" cy="148" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="17" cy="52" r="3" fill="#38bdf8" filter="drop-shadow(0 0 4px #38bdf8)" />
+
+              {/* Calibration Ticks at midpoint edges */}
+              <line x1="141.5" y1="28" x2="141.5" y2="33" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+              <line x1="183" y1="100" x2="178" y2="100" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+              <line x1="141.5" y1="172" x2="141.5" y2="167" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+              <line x1="58.5" y1="172" x2="58.5" y2="167" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+              <line x1="17" y1="100" x2="22" y2="100" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+              <line x1="58.5" y1="28" x2="58.5" y2="33" stroke="#38bdf8" strokeWidth="1.2" strokeOpacity="0.8" />
+            </motion.svg>
+
+            {/* THE EMBLEM: Centered with exact geometry and reactor core pulse */}
             <motion.div
               initial={{ scale: 0.3, opacity: 0 }}
               animate={
@@ -332,7 +394,7 @@ export function SiteLoader() {
                     }
                   : stage === "energize"
                   ? {
-                      scale: [1, 1.12, 1.05],
+                      scale: [1, 1.1, 1.04],
                       opacity: 1,
                       x: 0,
                       y: 0,
@@ -362,64 +424,28 @@ export function SiteLoader() {
               }
               style={{
                 position: "relative",
-                width: 130,
-                height: 130,
+                width: emblemSize,
+                height: emblemSize,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 10,
               }}
             >
-              {/* Laser Beam Sheen / Liquid Light Scan */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: "-10%",
-                  overflow: "hidden",
-                  borderRadius: "50%",
-                  pointerEvents: "none",
-                  zIndex: 2,
-                }}
-              >
-                <motion.div
-                  initial={{ x: "-150%", opacity: 0 }}
-                  animate={{
-                    x: ["-120%", "140%"],
-                    opacity: stage !== "boot" && !isDocking ? [0, 0.9, 0] : 0,
-                  }}
-                  transition={{
-                    duration: 1.4,
-                    repeat: isDocking ? 0 : Infinity,
-                    repeatDelay: 0.4,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    bottom: 0,
-                    width: "50%",
-                    background:
-                      "linear-gradient(105deg, transparent 15%, rgba(255, 255, 255, 0.7) 48%, rgba(56, 189, 248, 0.9) 52%, transparent 80%)",
-                    transform: "skewX(-20deg)",
-                    mixBlendMode: "color-dodge",
-                  }}
-                />
-              </div>
-
-              {/* Reactor Core Light Pulse */}
+              {/* Reactor Core Light Pulse (No sheen effect!) */}
               <motion.div
                 animate={{
-                  scale: stage === "energize" ? [1, 1.4, 1] : [1, 1.15, 1],
-                  opacity: stage === "energize" ? [0.6, 1, 0.7] : [0.4, 0.8, 0.4],
+                  scale: stage === "energize" ? [1, 1.35, 1] : [1, 1.12, 1],
+                  opacity: stage === "energize" ? [0.6, 0.95, 0.65] : [0.35, 0.7, 0.35],
                 }}
-                transition={{ duration: stage === "energize" ? 0.4 : 1.6, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: stage === "energize" ? 0.4 : 1.8, repeat: Infinity, ease: "easeInOut" }}
                 style={{
                   position: "absolute",
-                  width: "50px",
-                  height: "70px",
+                  width: isMobile ? "36px" : "48px",
+                  height: isMobile ? "50px" : "66px",
                   borderRadius: "50%",
                   background:
-                    "radial-gradient(ellipse at center, rgba(56, 189, 248, 0.9) 0%, rgba(20, 129, 248, 0.5) 50%, transparent 85%)",
+                    "radial-gradient(ellipse at center, rgba(56, 189, 248, 0.85) 0%, rgba(20, 129, 248, 0.4) 50%, transparent 85%)",
                   filter: "blur(10px)",
                   zIndex: 0,
                   pointerEvents: "none",
@@ -427,110 +453,139 @@ export function SiteLoader() {
               />
 
               {/* Exact Geometry SVG Vector Emblem */}
-              <BlueBugLogo size={130} glow={true} />
+              <BlueBugLogo size={emblemSize} glow={true} />
             </motion.div>
           </div>
 
-          {/* TELEMETRY HUD & NUMERIC COUNTER (Fades out cleanly upon docking) */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{
-              opacity: isDocking ? 0 : 1,
-              y: isDocking ? -15 : 0,
-            }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+          {/* TELEMETRY HUD & NUMERIC COUNTER: Centered cleanly vertically below the central hub */}
+          <div
             style={{
-              marginTop: "2rem",
-              textAlign: "center",
-              zIndex: 5,
+              position: "absolute",
+              top: `calc(50% + ${hudSize / 2 + (isMobile ? 14 : 22)}px)`,
+              left: 0,
+              right: 0,
+              margin: "0 auto",
+              zIndex: 15,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
               pointerEvents: "none",
+              width: "100%",
+              maxWidth: isMobile ? "280px" : "360px",
+              padding: "0 1rem",
             }}
           >
-            {/* Numeric Percentage Ticker */}
-            <div
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{
+                opacity: isDocking ? 0 : 1,
+                y: isDocking ? -12 : 0,
+              }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
               style={{
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                color: "#FFFFFF",
+                width: "100%",
                 display: "flex",
-                alignItems: "baseline",
-                gap: "0.25rem",
-                textShadow: "0 0 16px rgba(56, 189, 248, 0.7)",
-              }}
-            >
-              <span>{String(progress).padStart(2, "0")}</span>
-              <span style={{ fontSize: "0.85rem", color: "#38bdf8" }}>%</span>
-            </div>
-
-            {/* Glowing Linear Progress Bar */}
-            <div
-              style={{
-                width: "180px",
-                height: "3px",
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
-                borderRadius: "999px",
-                overflow: "hidden",
-                margin: "0.75rem 0 0.6rem 0",
-                position: "relative",
-              }}
-            >
-              <motion.div
-                style={{
-                  height: "100%",
-                  width: `${progress}%`,
-                  background: "linear-gradient(90deg, #1481f8, #38bdf8)",
-                  boxShadow: "0 0 10px #38bdf8",
-                  borderRadius: "999px",
-                  transition: "width 0.1s linear",
-                }}
-              />
-            </div>
-
-            {/* Dynamic Telemetry Status Line */}
-            <div
-              style={{
-                display: "inline-flex",
+                flexDirection: "column",
                 alignItems: "center",
-                gap: "0.5rem",
-                fontSize: "0.68rem",
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: stage === "energize" ? "#38bdf8" : "rgba(148, 163, 184, 0.8)",
-                transition: "color 0.3s ease",
+                textAlign: "center",
               }}
             >
-              <span
+              {/* Numeric Percentage Ticker */}
+              <div
                 style={{
-                  width: "5px",
-                  height: "5px",
-                  borderRadius: "50%",
-                  backgroundColor: stage === "energize" ? "#38bdf8" : "#1481f8",
-                  boxShadow: "0 0 8px #38bdf8",
-                  display: "inline-block",
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  fontSize: isMobile ? "1.25rem" : "1.45rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  color: "#FFFFFF",
+                  display: "inline-flex",
+                  alignItems: "baseline",
+                  justifyContent: "center",
+                  gap: "0.25rem",
+                  textShadow: "0 0 16px rgba(56, 189, 248, 0.7)",
                 }}
-              />
-              <span>{statusText}</span>
-            </div>
-          </motion.div>
+              >
+                <span>{String(progress).padStart(2, "0")}</span>
+                <span style={{ fontSize: "0.85rem", color: "#38bdf8" }}>%</span>
+              </div>
+
+              {/* Glowing Linear Progress Bar */}
+              <div
+                style={{
+                  width: isMobile ? "130px" : "170px",
+                  height: "3px",
+                  backgroundColor: "rgba(255, 255, 255, 0.08)",
+                  borderRadius: "999px",
+                  overflow: "hidden",
+                  margin: "0.5rem 0 0.45rem 0",
+                  position: "relative",
+                }}
+              >
+                <motion.div
+                  style={{
+                    height: "100%",
+                    width: `${progress}%`,
+                    background: "linear-gradient(90deg, #1481f8, #38bdf8)",
+                    boxShadow: "0 0 10px #38bdf8",
+                    borderRadius: "999px",
+                    transition: "width 0.1s linear",
+                  }}
+                />
+              </div>
+
+              {/* Dynamic Telemetry Status Line */}
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                  fontSize: isMobile ? "0.6rem" : "0.68rem",
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  letterSpacing: isMobile ? "0.08em" : "0.14em",
+                  textTransform: "uppercase",
+                  color: stage === "energize" ? "#38bdf8" : "rgba(148, 163, 184, 0.8)",
+                  transition: "color 0.3s ease",
+                  padding: "0 0.5rem",
+                  textAlign: "center",
+                  lineHeight: 1.4,
+                }}
+              >
+                <span
+                  style={{
+                    width: "5px",
+                    height: "5px",
+                    minWidth: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: stage === "energize" ? "#38bdf8" : "#1481f8",
+                    boxShadow: "0 0 8px #38bdf8",
+                    display: "inline-block",
+                  }}
+                />
+                <span>{statusText}</span>
+              </div>
+            </motion.div>
+          </div>
 
           {/* Quick Skip Prompt */}
           <div
             style={{
               position: "absolute",
-              bottom: "2.5rem",
-              fontSize: "0.72rem",
-              fontFamily: "ui-monospace, monospace",
-              color: "rgba(148, 163, 184, 0.35)",
-              letterSpacing: "0.08em",
+              bottom: isMobile ? "1.5rem" : "2.5rem",
+              left: 0,
+              right: 0,
+              margin: "0 auto",
+              textAlign: "center",
+              fontSize: isMobile ? "0.65rem" : "0.72rem",
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              color: "rgba(148, 163, 184, 0.4)",
+              letterSpacing: "0.1em",
+              width: "100%",
+              pointerEvents: "none",
             }}
           >
-            CLICK OR ESC TO BYPASS
+            TAP OR CLICK TO BYPASS
           </div>
         </motion.div>
       )}

@@ -1,12 +1,17 @@
 import Link from "next/link";
-import { fetchProjects, fetchServices } from "@/lib/api";
+import { fetchProjects, fetchServices, fetchStats } from "@/lib/api";
 import {
   SITE_CONFIG, TECH_PILLS, SERVICES_FALLBACK,
-  PROCESS_STEPS, CATEGORY_LABELS,
+  CATEGORY_LABELS,
 } from "@/lib/config";
 import { ArrowUpRight, ArrowRight } from "@/lib/icons";
 import { RevealSection } from "@/components/ui/RevealSection";
 import type { ProjectList } from "@/lib/types";
+import { HeroCanvas } from "@/components/ui/HeroCanvas";
+import { TextScramble } from "@/components/ui/TextScramble";
+import { TiltCard } from "@/components/ui/TiltCard";
+import { StatsSection } from "@/components/ui/StatsSection";
+import { ScrollTimeline } from "@/components/ui/ScrollTimeline";
 
 export const metadata = {
   title: `${SITE_CONFIG.name} | Custom Software, Apps & AI`,
@@ -26,97 +31,82 @@ function GeomIcon() {
 }
 
 const BENTO_CLASSES = ["bento-c1", "bento-c2", "bento-c3", "bento-c4"];
-const BENTO_DELAYS = [1, 2, 3, 4];
+const BENTO_DELAYS  = [1, 2, 3, 4];
 
 function BentoCard({ p, className, delay }: { p: ProjectList; className: string; delay: number }) {
   return (
-    <Link href={`/work/${p.slug}`} className={`bento-card ${className} reveal reveal-delay-${delay}`}>
-      <div className="bento-media">
-        {p.cover_image
-          ? <img src={p.cover_image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          : <div className="bento-media-empty"><GeomIcon /></div>
-        }
-      </div>
-      <div className="bento-arrow">
-        <ArrowUpRight strokeWidth={2} size={12} />
-      </div>
-      <div className="bento-body">
-        <div className="bento-tags">
-          <span className="badge badge-category">{CATEGORY_LABELS[p.category] ?? p.category}</span>
-          {p.live_url && <span className="badge badge-live">Live</span>}
-          {p.github_url && <span className="badge badge-github">GitHub</span>}
+    <TiltCard className={`bento-card ${className} reveal reveal-delay-${delay}`}>
+      <Link href={`/work/${p.slug}`} className="bento-card-inner-link">
+        <div className="bento-media">
+          {p.cover_image
+            ? <img src={p.cover_image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            : <div className="bento-media-empty"><GeomIcon /></div>
+          }
         </div>
-        <div className="bento-title">{p.title}</div>
-        <div className="bento-desc">{p.tagline}</div>
-      </div>
-    </Link>
+        <div className="bento-arrow">
+          <ArrowUpRight strokeWidth={2} size={12} />
+        </div>
+        <div className="bento-body">
+          <div className="bento-tags">
+            <span className="badge badge-category">{CATEGORY_LABELS[p.category] ?? p.category}</span>
+            {p.live_url && <span className="badge badge-live">Live</span>}
+            {p.github_url && <span className="badge badge-github">GitHub</span>}
+          </div>
+          <div className="bento-title">{p.title}</div>
+          <div className="bento-desc">{p.tagline}</div>
+        </div>
+      </Link>
+    </TiltCard>
   );
 }
 
 export default async function Home() {
-  const [featured, services] = await Promise.all([
+  const [featured, services, stats] = await Promise.all([
     fetchProjects(undefined, true),
     fetchServices(),
+    fetchStats(),
   ]);
   const displayServices = services.length ? services : SERVICES_FALLBACK;
-
-  // Duplicate TECH_PILLS for seamless marquee loop
   const marqueeItems = [...TECH_PILLS, ...TECH_PILLS];
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────── */}
+      {/* HERO */}
       <section className="hero">
-        <div className="container">
-          <div className="hero-inner">
-            {/* Left: main content */}
-            <div className="hero-content">
-              <div className="hero-label reveal">
-                <span className="hero-label-dot" />
-                Tech Consultancy
-              </div>
-              <h1 className="hero-title gradient-text reveal reveal-delay-1">
-                {SITE_CONFIG.tagline}
-              </h1>
-              <p className="hero-sub reveal reveal-delay-2">
-                Custom websites, apps, PWAs, and AI/ML systems — designed,
-                built, and shipped by BlueBug. No fluff, no templates.
-              </p>
-              <div className="hero-ctas reveal reveal-delay-3">
-                <Link href="/contact" className="btn btn-primary btn-lg">
-                  Book a Call
-                </Link>
-                <Link href="/work" className="btn btn-glass btn-lg">
-                  See Our Work
-                </Link>
-              </div>
-            </div>
+        {/* Three.js canvas behind everything */}
+        <HeroCanvas />
 
-            {/* Right: asymmetric stat block */}
-            <aside className="hero-aside reveal reveal-delay-2">
-              <div className="hero-stat-block">
-                <div className="hero-stat-rule" />
-                <div className="hero-stats">
-                  <div className="hero-stat-item">
-                    <div className="hero-stat-num">12+</div>
-                    <div className="hero-stat-label">Projects Shipped</div>
-                  </div>
-                  <div className="hero-stat-item">
-                    <div className="hero-stat-num">5</div>
-                    <div className="hero-stat-label">Tech Domains</div>
-                  </div>
-                  <div className="hero-stat-item">
-                    <div className="hero-stat-num">24h</div>
-                    <div className="hero-stat-label">Response Time</div>
-                  </div>
-                </div>
-              </div>
-            </aside>
+        {/* Keep existing orbs — they complement the canvas */}
+        <div className="hero-orbs" aria-hidden="true">
+          <div className="hero-orb hero-orb-1" />
+          <div className="hero-orb hero-orb-2" />
+          <div className="hero-orb hero-orb-3" />
+        </div>
+
+        <div className="container hero-inner">
+          <div className="hero-label hero-enter" style={{ animationDelay: "0ms" }}>
+            <span className="hero-label-dot" />
+            Tech Consultancy
+          </div>
+          <h1 className="hero-title gradient-text hero-enter" style={{ animationDelay: "80ms" }}>
+            <TextScramble text={SITE_CONFIG.tagline} delay={600} duration={2000} />
+          </h1>
+          <p className="hero-sub hero-enter" style={{ animationDelay: "180ms" }}>
+            Custom websites, apps, PWAs, and AI/ML systems — designed,
+            built, and shipped by BlueBug. No fluff, no templates.
+          </p>
+          <div className="hero-ctas hero-enter" style={{ animationDelay: "280ms" }}>
+            <Link href="/contact" className="btn btn-primary btn-lg" data-cursor-attract="true">
+              Book a Call
+            </Link>
+            <Link href="/work" className="btn btn-glass btn-lg" data-cursor-attract="true">
+              See Our Work
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Marquee Trust Strip ───────────────────────────────── */}
+      {/* MARQUEE TRUST STRIP */}
       <div className="trust-strip" aria-hidden="true">
         <div className="marquee-track">
           {marqueeItems.map((t, i) => (
@@ -128,7 +118,7 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* ── Featured Work ─────────────────────────────────────── */}
+      {/* FEATURED WORK */}
       <section className="section">
         <RevealSection>
           <div className="container">
@@ -171,7 +161,7 @@ export default async function Home() {
         </RevealSection>
       </section>
 
-      {/* ── Services — editorial list ─────────────────────────── */}
+      {/* SERVICES */}
       <section className="section" style={{ background: "var(--bb-surface)", borderTop: "1px solid var(--bb-border)", borderBottom: "1px solid var(--bb-border)" }}>
         <RevealSection>
           <div className="container">
@@ -203,35 +193,33 @@ export default async function Home() {
         </RevealSection>
       </section>
 
-      {/* ── Process — vertical timeline ───────────────────────── */}
+      {/* STATS + CHARTS — new section */}
+      <RevealSection>
+        <StatsSection initialData={stats} />
+      </RevealSection>
+
+      {/* PROCESS — scroll timeline */}
       <section className="section">
         <RevealSection>
           <div className="container">
             <div className="section-hd centered reveal">
               <span className="label">Process</span>
               <h2>How we work</h2>
+              <p>A repeatable process that ships on time, every time.</p>
             </div>
-            <div className="timeline">
-              {PROCESS_STEPS.map((s, i) => (
-                <div key={s.num} className={`timeline-step reveal reveal-delay-${i + 1}`}>
-                  <div className="timeline-num">{s.num}</div>
-                  <div className="timeline-title">{s.title}</div>
-                  <div className="timeline-desc">{s.desc}</div>
-                </div>
-              ))}
-            </div>
+            <ScrollTimeline />
           </div>
         </RevealSection>
       </section>
 
-      {/* ── CTA ──────────────────────────────────────────────── */}
+      {/* CTA */}
       <section className="section-sm">
         <RevealSection>
           <div className="container">
             <div className="cta-section reveal">
               <h2>Have a project in mind?</h2>
               <p>We work with startups, institutions, and founders who need real software built.</p>
-              <Link href="/contact" className="btn btn-primary btn-lg">
+              <Link href="/contact" className="btn btn-primary btn-lg" data-cursor-attract="true">
                 Book a Free Call
               </Link>
             </div>

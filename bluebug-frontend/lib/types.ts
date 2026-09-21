@@ -57,3 +57,28 @@ export interface TeamMember {
   photo: string;
   is_founder: boolean;
 }
+
+export interface HeadlineStat {
+  id?: number;
+  label: string;
+  target: number;
+  suffix: string;
+}
+
+export interface SiteStatsResponse {
+  headline_stats: HeadlineStat[];
+  radar_chart: {
+    categories: string[];
+    values: number[];
+  };
+  work_mix_chart: {
+    labels: string[];
+    values: number[];
+    colors: string[];
+  };
+  sprint_timeline_chart: {
+    phases: string[];
+    weeks: number[];
+  };
+}
+

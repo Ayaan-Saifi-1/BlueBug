@@ -8,11 +8,14 @@ from apps.projects.views import ProjectList, ProjectDetail, TestimonialList
 from apps.services.views import ServiceList
 from apps.team.views import TeamList
 from apps.leads.views import LeadCreate
-from apps.core.views import health_check
+from apps.core.views import health_check, StatsSummaryView
 
 urlpatterns = [
     # Health check — uptime monitor ke liye, DB connectivity test karta hai
     path('health/', health_check, name='health-check'),
+
+    # Stats & Metrics — Plotly charts and headline counters
+    path('stats/', StatsSummaryView.as_view(), name='stats-summary'),
 
     # Projects — public read only
     path('projects/', ProjectList.as_view(), name='project-list'),
